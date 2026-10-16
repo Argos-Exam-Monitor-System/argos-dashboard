@@ -1,40 +1,47 @@
-# Issue 3 · Layout e navegação inicial das sessões
+# Issue 3 · Barra superior e navegação inicial
 
 [Issue #3](https://github.com/Argos-Exam-Monitor-System/argos-dashboard/issues/3)
 
 ## Objetivo
 
-Dar ao aplicador um ponto de partida para as sessões e demonstrar a navegação até a futura tela de monitoramento. A entrega deve funcionar sem backend e identificar as telas que ainda dependem de integração.
+Entregar a barra superior do protótipo com todos os destinos de navegação e o perfil. Nas telas do dashboard, abaixo da barra aparece somente a faixa com o título. O corpo de cada tela fica vazio até a implementação da funcionalidade.
 
-## Rotas e comportamento
+## Navegação
 
-| Rota | Comportamento |
-| --- | --- |
-| `/` | Redireciona para `/sessoes`. |
-| `/sessoes` | Exibe **Minhas sessões**, informa que a lista depende da integração e oferece o link **Prévia do monitoramento**. |
-| `/sessoes/previa` | Exibe **Prévia do monitoramento**, identifica a tela como provisória e oferece **Voltar para sessões**. A rota é estática e pode ser aberta diretamente. |
-| `/acesso-negado` | Exibe **Acesso negado**, explica a restrição e oferece um link para sessões. A tela pode ser aberta diretamente para demonstração. |
+| Entrada no protótipo    | Rota               | Título                  |
+| ----------------------- | ------------------ | ----------------------- |
+| Sessões                 | `/sessoes`         | Minhas sessões          |
+| Sala de espera          | `/sessoes/espera`  | Sala de espera          |
+| Ao vivo                 | `/sessoes/ao-vivo` | Sessão ao vivo          |
+| Relatórios              | `/relatorios`      | Relatórios              |
+| Coordenação             | `/coordenacao`     | Histórico institucional |
+| Sair, ao lado do perfil | `/login`           | Entrar                  |
 
-- Evolua o `MainLayout` e o roteador existentes. Compartilhe a barra superior entre as telas e mantenha **Sessões** como item ativo na lista e na prévia.
-- Apresente alunos e linha do tempo como regiões da futura tela de monitoramento, com mensagens provisórias. Mantenha a prévia livre de nomes, contagens e indicadores que pareçam vir de uma sessão ativa.
-- Prepare estados reutilizáveis de **carregamento**, **erro** e **vazio**. Use carregamento para operações pendentes, erro para falhas e vazio quando uma consulta concluída não retornar itens. Nesta etapa, as telas usam uma mensagem de integração pendente. Exercite os três estados em teste ou durante a verificação dos componentes, sem temporizadores ou requisições artificiais na interface entregue.
-- Sala de espera, criação de sessão, ações de monitoramento, Relatórios, Coordenação, API e atualização em tempo real ficam para etapas futuras. Login, proteção de rotas e logout pertencem à [issue #2](https://github.com/Argos-Exam-Monitor-System/argos-dashboard/issues/2).
+- Use a ordem e os rótulos da tabela na barra. A marca ARGOS também leva para **Ao vivo**, como no protótipo. Use links do React Router e sinalize o destino ativo com `aria-current="page"`.
+- Preserve o redirecionamento de `/` para `/sessoes`. Se `/sessoes/previa` já estiver na implementação local, redirecione para `/sessoes/ao-vivo`. Mantenha `/acesso-negado` acessível por URL, com a barra e o título **Acesso negado**, sem criar um item de menu para ela.
+- **Sair** leva à tela provisória **Entrar**. Ela tem somente o título e usa um layout próprio, como o quadro Login. Autenticação, logout real e controle de acesso pertencem à [issue #2](https://github.com/Argos-Exam-Monitor-System/argos-dashboard/issues/2).
+- A barra inclui a identificação do perfil com nome, papel e avatar circular com iniciais. Use uma identidade estática de demonstração enquanto a autenticação estiver pendente. A aparência do perfil segue o protótipo em todas as rotas do dashboard.
 
 ## Referência visual
 
-Use `ARGOS · Dashboard v2.html` como referência visual para a barra superior, a lista e a prévia.
+Use o quadro **Componente · barra superior** em `ARGOS · Dashboard v2.html` como referência direta. A versão anexada também pode ter o sufixo `(1)`.
 
-- **Barra superior** com marca ARGOS, fundo tinta `#3A2716`, texto papiro `#F2E6C9` e destaque para o item ativo. Mostre links apenas para fluxos disponíveis.
-- **Sessões** com faixa escura para o título e conteúdo em fundo papiro. Use pergaminho `#E6D2A3` para superfícies secundárias e laranja queimado `#C2581C` como cor de destaque onde houver contraste adequado. A composição do protótipo usa largura de conteúdo de até `1360px` e margens laterais fluidas.
-- **Sessão ao vivo** como base da prévia, com faixa de título e regiões de alunos e linha do tempo lado a lado quando houver espaço. A tipografia de referência é Outfit, com fonte de sistema como alternativa. Aplique a mesma linguagem visual à tela de acesso negado.
+- Use a imagem original da marca, com altura de `30px`, e a fonte **Outfit**. A barra tem fundo `#3A2716`, texto `#F2E6C9`, largura interna máxima de `1360px`, altura mínima de `72px` e recuo lateral `clamp(16px, 3vw, 40px)`.
+- Os links têm altura mínima de `40px`, recuo horizontal de `14px`, raio de `8px` e espaçamento de `4px` entre eles. O ativo usa fundo `#F2E6C9`, texto `#3A2716` e peso `500`. Os demais usam texto `#E6D2A3`. O destaque ativo é preenchido, conforme o protótipo.
+- À direita, alinhe nome e papel em duas linhas, avatar de `38px` e link **Sair**. O avatar tem fundo `#E6D2A3` e texto `#3A2716`. Papel e link usam `#C9B48E`. Preserve o espaçamento de `12px` entre os elementos do perfil.
+- Reaproveite a faixa escura dos quadros do dashboard, com fundo `#3A2716`, borda superior `#6E5438`, título Outfit de `40px` e peso `500` no desktop. Use as mesmas largura máxima e margens da barra. O corpo permanece em `#F2E6C9`. Os títulos desta etapa identificam as telas, independentemente dos nomes de provas usados no protótipo.
+- Em telas estreitas, permita que links e perfil quebrem de linha sem perder itens nem causar rolagem horizontal.
 
-Priorize a composição desktop. Em largura estreita, empilhe as regiões, mantenha a navegação alcançável e faça o conteúdo caber na largura da tela. O fluxo operacional de monitoramento no celular será definido com a tela funcional.
+## Implementação
+
+- Comece pelo diff local e pelo inventário de componentes, estilos, assets e rotas. Adapte o `MainLayout`, o roteador e os componentes já criados antes de extrair novos.
+- Aplique Atomic Design à composição real desta entrega. Os links e o avatar são elementos básicos, o perfil é uma composição, a barra superior é um organismo e o layout com faixa de título é o template compartilhado. As rotas fornecem o título de cada tela. Mantenha uma única implementação do menu, do perfil e do título do dashboard.
+- Retire do layout os cards de **Alunos** e **Linha do tempo**, o link **Prévia do monitoramento**, o botão **Voltar para sessões** e os demais blocos, ações e textos provisórios do corpo. Componentes genéricos de carregamento, erro e vazio que já existirem podem ficar disponíveis para a próxima etapa, fora dessas páginas.
 
 ## Critérios de aceite
 
-- [ ] Abrir `/` leva a **Minhas sessões**. O link de prévia, o retorno para sessões e o histórico do navegador funcionam.
-- [ ] Abrir diretamente `/sessoes/previa` e `/acesso-negado` renderiza as telas esperadas com retorno para sessões.
-- [ ] Lista e prévia informam que são provisórias e apresentam somente os controles disponíveis.
-- [ ] Os três estados reutilizáveis exibem mensagens distintas. O componente de carregamento expõe uma mensagem de status à tecnologia assistiva.
-- [ ] A 1440 px e 390 px, o conteúdo cabe na tela sem rolagem horizontal. Os links funcionam por teclado e exibem foco visível.
-- [ ] Os testes de navegação rodam com a stack existente, e build, lint, formatação e testes passam.
+- [ ] A barra exibe marca, cinco links na ordem do protótipo, perfil e **Sair**. Cada destino abre sua rota e exibe o título da tabela.
+- [ ] Só o item da rota ativa tem o destaque preenchido. Acesso direto, voltar e avançar do navegador funcionam. Os links têm foco visível e funcionam por teclado.
+- [ ] Abaixo da barra há somente o título da tela, seguido do corpo vazio. A tela **Entrar** exibe somente seu título.
+- [ ] A comparação com o protótipo em `1440px` confirma fonte, marca, cores, dimensões, espaçamento e alinhamento da barra e da faixa de título. Em `390px`, todos os links e o perfil continuam acessíveis, sem rolagem horizontal.
+- [ ] Testes de navegação usam a stack existente. Build, lint, formatação e testes passam.
