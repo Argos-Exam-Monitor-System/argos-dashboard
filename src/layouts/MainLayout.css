@@ -131,11 +131,18 @@ body {
 
 .profile-exit {
   padding-inline: 10px;
+  border: 0;
+  background: transparent;
   color: var(--pergaminho-suave);
+  font: inherit;
   font-size: 14px;
+  text-decoration: underline;
+  cursor: pointer;
 }
 
 .topbar a:focus-visible,
+.profile-exit:focus-visible,
+.login-action:focus-visible,
 main:focus-visible {
   outline: 3px solid var(--ouro);
   outline-offset: 3px;
@@ -165,6 +172,30 @@ main:focus-visible {
   place-items: center;
   min-height: 100vh;
   padding: clamp(32px, 6vw, 96px);
+}
+
+.login-content {
+  display: grid;
+  justify-items: center;
+  gap: 16px;
+  width: min(100%, 28rem);
+  text-align: center;
+}
+
+.login-action {
+  min-height: 44px;
+  padding-inline: 24px;
+  border: 0;
+  border-radius: 8px;
+  background: var(--tinta);
+  color: var(--papiro);
+  font: inherit;
+  cursor: pointer;
+}
+
+.login-action:disabled {
+  opacity: 0.7;
+  cursor: wait;
 }
 
 .login-layout h1 {
@@ -200,7 +231,7 @@ main:focus-visible {
     background: linear-gradient(90deg, var(--tinta) 54.55%, var(--papiro) 54.55%);
   }
 
-  .login-layout h1 {
+  .login-content {
     grid-column: 2;
   }
 }
