@@ -11,7 +11,9 @@ Este repositório contém o dashboard web do aplicador para acompanhamento de se
 ## Código e interface
 
 - Preserve a stack e as convenções do repositório. Use React, TypeScript e o React Router existente. Use `@/` para imports a partir de `src/`.
-- Mantenha estado perto de quem o usa. Extraia um componente quando houver reuso real ou quando ele deixar a tela mais fácil de entender. Adicione dependência somente se resolver uma necessidade concreta que o projeto ainda não cobre.
+- Organize a UI com Atomic Design. Componha átomos (elementos básicos), moléculas (grupos com uma função), organismos (seções completas), templates (estrutura da tela) e páginas (instâncias ligadas às rotas). Crie arquivos e pastas apenas para os níveis que a interface já usa.
+- Procure componentes e estilos existentes antes de criar outros. Reaproveite ou adapte a implementação compartilhada quando ela puder atender ao protótipo e preservar os usos atuais. Centralize os tokens visuais comuns. Mantenha o estado perto de quem o usa e evite camadas sem uso concreto.
+- Quando houver protótipo, derive dele a marca, a tipografia, as cores, as dimensões, os espaçamentos, a composição e os estados visuais. Abra a referência e compare o resultado no navegador antes de declarar que corresponde ao design.
 - Em telas, priorize HTML semântico, foco visível, navegação por teclado e texto em português do Brasil. Use rótulos claros para carregamento, erro, vazio e funcionalidades ainda indisponíveis.
 - Use dados reais somente com contratos confirmados. Identifique qualquer prévia como demonstração. Mantenha credenciais e dados de participantes fora do código, das referências públicas e das variáveis `VITE_*`, que são públicas.
 

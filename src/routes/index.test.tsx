@@ -1,12 +1,28 @@
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { RouterProvider } from 'react-router-dom'
-import { router } from '@/routes'
+import { createMemoryRouter, RouterProvider } from 'react-router-dom'
+import { routes } from '@/routes'
+import { session, useSessionStatus } from '@/features/auth/session'
+
+vi.mock('@/features/auth/session', async (importOriginal) => {
+  const original = await importOriginal<typeof import('@/features/auth/session')>()
+  return { ...original, useSessionStatus: vi.fn(), session: { login: vi.fn(), logout: vi.fn() } }
+})
+
+function renderRoute(path: string) {
+  const router = createMemoryRouter(routes, { initialEntries: [path] })
+  render(<RouterProvider router={router} />)
+  return router
+}
 
 describe('Navegação do dashboard', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+    vi.mocked(useSessionStatus).mockReturnValue('authenticated')
+  })
+
   it('redireciona a raiz, mantém a ordem dos links e mostra o perfil', async () => {
-    await router.navigate('/')
-    render(<RouterProvider router={router} />)
+    const router = renderRoute('/')
 
     expect(await screen.findByRole('heading', { name: 'Minhas sessões' })).toBeInTheDocument()
     expect(router.state.location.pathname).toBe('/sessoes')
@@ -17,7 +33,6 @@ describe('Navegação do dashboard', () => {
       'Ao vivo',
       'Relatórios',
       'Coordenação',
-      'Sair',
     ])
     expect(screen.getByRole('link', { current: 'page', name: 'Sessões' })).toBeInTheDocument()
     expect(screen.getByRole('group', { name: 'Perfil de demonstração' })).toHaveTextContent(
@@ -32,9 +47,8 @@ describe('Navegação do dashboard', () => {
     ['Relatórios', '/relatorios', 'Relatórios'],
     ['Coordenação', '/coordenacao', 'Histórico institucional'],
   ])('abre %s e destaca somente o destino ativo', async (name, path, title) => {
-    await router.navigate('/acesso-negado')
     const user = userEvent.setup()
-    render(<RouterProvider router={router} />)
+    const router = renderRoute('/acesso-negado')
 
     await user.click(screen.getByRole('link', { name }))
 
@@ -48,36 +62,57 @@ describe('Navegação do dashboard', () => {
     expect(main).toHaveFocus()
   })
 
-  it('abre a tela Entrar pelo perfil e permite ir a Ao vivo pela marca', async () => {
-    await router.navigate('/sessoes')
+  it('permite ir a Ao vivo pela marca e aciona o logout pelo perfil', async () => {
     const user = userEvent.setup()
-    render(<RouterProvider router={router} />)
+    const router = renderRoute('/sessoes')
 
     await user.click(screen.getByRole('link', { name: /argos/i }))
     expect(await screen.findByRole('heading', { name: 'Sessão ao vivo' })).toBeInTheDocument()
     expect(router.state.location.pathname).toBe('/sessoes/ao-vivo')
 
-    await user.click(screen.getByRole('link', { name: 'Sair' }))
-    expect(await screen.findByRole('heading', { name: 'Entrar' })).toBeInTheDocument()
-    expect(router.state.location.pathname).toBe('/login')
-    expect(screen.getByRole('main')).toHaveTextContent(/^Entrar$/)
-    expect(screen.queryByRole('navigation')).not.toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: 'Sair' }))
+    expect(session.logout).toHaveBeenCalledOnce()
   })
 
   it('redireciona o endereço antigo da prévia para Ao vivo', async () => {
-    await router.navigate('/sessoes/previa')
-    render(<RouterProvider router={router} />)
+    const router = renderRoute('/sessoes/previa')
 
     expect(await screen.findByRole('heading', { name: 'Sessão ao vivo' })).toBeInTheDocument()
     expect(router.state.location.pathname).toBe('/sessoes/ao-vivo')
   })
 
   it('abre Acesso negado sem destacar um item no menu', async () => {
-    await router.navigate('/acesso-negado')
-    render(<RouterProvider router={router} />)
+    renderRoute('/acesso-negado')
 
     expect(screen.getByRole('heading', { name: 'Acesso negado' })).toBeInTheDocument()
     expect(screen.getByRole('navigation')).toBeInTheDocument()
     expect(screen.queryByRole('link', { current: 'page' })).not.toBeInTheDocument()
+  })
+
+  it('protege o acesso direto e oferece o login do Keycloak', async () => {
+    vi.mocked(useSessionStatus).mockReturnValue('anonymous')
+    const user = userEvent.setup()
+    const router = renderRoute('/sessoes/espera')
+
+    await user.click(await screen.findByRole('button', { name: 'Entrar' }))
+    expect(router.state.location.pathname).toBe('/login')
+    expect(screen.queryByRole('navigation')).not.toBeInTheDocument()
+    expect(session.login).toHaveBeenCalledOnce()
+  })
+
+  it('redireciona para Sessões ao abrir o login com autenticação', async () => {
+    const router = renderRoute('/login')
+
+    expect(await screen.findByRole('heading', { name: 'Minhas sessões' })).toBeInTheDocument()
+    expect(router.state.location.pathname).toBe('/sessoes')
+  })
+
+  it('volta ao login com uma mensagem quando a sessão expira', async () => {
+    vi.mocked(useSessionStatus).mockReturnValue('expired')
+    const router = renderRoute('/relatorios')
+
+    expect(await screen.findByRole('alert')).toHaveTextContent('Sua sessão expirou.')
+    expect(router.state.location.pathname).toBe('/login')
+    expect(screen.queryByRole('navigation')).not.toBeInTheDocument()
   })
 })

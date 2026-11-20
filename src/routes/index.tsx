@@ -1,14 +1,15 @@
-import { createBrowserRouter, Navigate } from 'react-router-dom'
+import { Navigate, type RouteObject } from 'react-router-dom'
 import { PageHeading } from '@/components/molecules/PageHeading'
-import { MainLayout } from '@/layouts/MainLayout'
+import { loginPath, sessionPath } from '@/features/auth/session'
 import { LoginPage } from '@/pages/LoginPage'
 import { dashboardLinks } from '@/routes/dashboard'
+import { RequireSession } from '@/routes/RequireSession'
 
-export const router = createBrowserRouter([
+export const routes: RouteObject[] = [
   {
-    element: <MainLayout />,
+    element: <RequireSession />,
     children: [
-      { index: true, element: <Navigate to="/sessoes" replace /> },
+      { index: true, element: <Navigate to={sessionPath} replace /> },
       ...dashboardLinks.map(({ path, title }) => ({
         path,
         element: <PageHeading title={title} />,
@@ -17,5 +18,5 @@ export const router = createBrowserRouter([
       { path: 'acesso-negado', element: <PageHeading title="Acesso negado" /> },
     ],
   },
-  { path: '/login', element: <LoginPage /> },
-])
+  { path: loginPath, element: <LoginPage /> },
+]

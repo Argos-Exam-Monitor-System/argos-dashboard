@@ -1,5 +1,5 @@
-import { Link } from 'react-router-dom'
 import { Avatar } from '@/components/atoms/Avatar'
+import { session } from '@/features/auth/session'
 
 export function TopBarProfile() {
   return (
@@ -9,9 +9,9 @@ export function TopBarProfile() {
         <span className="profile-role">Aplicadora</span>
       </span>
       <Avatar initials="HD" />
-      <Link className="profile-exit" to="/login">
+      <button className="profile-exit" type="button" onClick={() => void session.logout()}>
         Sair
-      </Link>
+      </button>
     </div>
   )
 }
